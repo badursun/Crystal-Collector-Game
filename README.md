@@ -104,6 +104,16 @@ Crystal-Collector-Game/
 
 Bu proje MIT lisansı altında yayınlanmıştır. Daha fazla bilgi için `LICENSE` dosyasına bakın.
 
+## 🎨 3D Model Credits
+
+Bu oyunda kullanılan 3D modeller Creative Commons Attribution lisansı altında Sketchfab'den alınmıştır:
+
+- **Spaceship Model**: [JCarvajal](https://sketchfab.com/3d-models/spaceship-00c7005a1ae74487874a9f518cc25d24) - CC Attribution
+- **Crystal Pack Stylized**: [Batuhan13](https://sketchfab.com/3d-models/crystal-pack-stylized-6e4fb0784b264c62858763f394b0f169) - CC Attribution  
+- **Asteroids Pack**: [SebastianSosnowski](https://sketchfab.com/3d-models/asteroids-pack-rocky-version-adde1ecf129e4509be8af61b84bafa85) - CC Attribution
+
+Bu modellerin yaratıcılarına teşekkür ederiz! 🙏
+
 ## 👨‍💻 Geliştirici
 
 **Badursun** - [@badursun](https://github.com/badursun)
@@ -111,3 +121,4 @@ Bu proje MIT lisansı altında yayınlanmıştır. Daha fazla bilgi için `LICEN
 ---
 
 ⭐ Bu projeyi beğendiyseniz star vermeyi unutmayın!
+

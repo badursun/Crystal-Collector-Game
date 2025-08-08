@@ -1,0 +1,723 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Orbitron', 'Courier New', monospace;
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+    cursor: auto;
+}
+
+body.playing {
+    cursor: none;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(180deg, #000428 0%, #004e92 100%);
+}
+
+#game-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#score-panel {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 20, 40, 0.9) 100%);
+    padding: 5px;
+    border-radius: 25px;
+    border: 3px solid rgba(0, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    box-shadow: 
+        0 0 60px rgba(0, 255, 255, 0.4),
+        inset 0 0 30px rgba(0, 255, 255, 0.1),
+        0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.panel-frame {
+    display: flex;
+    gap: 40px;
+    padding: 15px 30px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 20px;
+    background: 
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 10px,
+            rgba(0, 255, 255, 0.03) 10px,
+            rgba(0, 255, 255, 0.03) 20px
+        );
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+}
+
+.stat-item::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ffff, transparent);
+    opacity: 0.5;
+}
+
+.lives-display {
+    min-width: 120px;
+}
+
+.lives-icons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.life-icon {
+    font-size: 20px;
+    color: #333;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    transition: all 0.3s;
+}
+
+.life-icon.active {
+    color: #ff0066;
+    text-shadow: 
+        0 0 20px rgba(255, 0, 102, 1),
+        0 0 40px rgba(255, 0, 102, 0.5);
+    animation: pulse 1s infinite;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #00ffff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+#combo-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#combo-display:not(.hidden) {
+    animation: comboPopup 0.5s ease-out;
+}
+
+#combo-text {
+    font-size: 48px;
+    font-weight: bold;
+    background: linear-gradient(45deg, #ff00ff, #00ffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+}
+
+@keyframes comboPopup {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+}
+
+.screen.active {
+    display: flex;
+}
+
+.game-title {
+    font-size: 72px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: titleGlow 2s ease-in-out infinite;
+}
+
+.game-subtitle {
+    font-size: 24px;
+    color: #00ffff;
+    margin-bottom: 40px;
+    letter-spacing: 4px;
+}
+
+@keyframes titleGlow {
+    0%, 100% {
+        text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+    }
+    50% {
+        text-shadow: 0 0 40px rgba(255, 0, 255, 0.8);
+    }
+}
+
+.btn-glow {
+    padding: 15px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    background: linear-gradient(45deg, #00ffff, #ff00ff);
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+}
+
+.btn-glow:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 50px rgba(255, 0, 255, 0.8);
+}
+
+.instructions {
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.instructions p {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #aaa;
+}
+
+.game-over-title {
+    font-size: 48px;
+    color: #ff0066;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px rgba(255, 0, 102, 0.8);
+}
+
+.final-stats {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px 40px;
+    border-radius: 10px;
+    border: 2px solid rgba(255, 0, 102, 0.3);
+    margin-bottom: 30px;
+}
+
+.final-stats p {
+    margin: 10px 0;
+    font-size: 20px;
+    color: #fff;
+}
+
+.final-stats span {
+    color: #00ffff;
+    font-weight: bold;
+}
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loader {
+    text-align: center;
+}
+
+.loader-ring {
+    width: 80px;
+    height: 80px;
+    border: 4px solid rgba(0, 255, 255, 0.3);
+    border-top-color: #00ffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loader p {
+    color: #00ffff;
+    font-size: 18px;
+}
+
+#boost-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 350px;
+}
+
+.boost-container-new {
+    background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(40,0,40,0.8) 100%);
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 2px solid rgba(255,0,255,0.5);
+    backdrop-filter: blur(15px);
+    box-shadow: 
+        inset 0 0 30px rgba(255,0,255,0.2),
+        0 0 40px rgba(255,0,255,0.3);
+}
+
+.boost-label {
+    text-align: center;
+    font-size: 12px;
+    color: #ff00ff;
+    letter-spacing: 3px;
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px rgba(255,0,255,0.8);
+}
+
+.boost-bar {
+    width: 100%;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid rgba(255, 0, 255, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.boost-segments {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    pointer-events: none;
+}
+
+.boost-segments span {
+    width: 2px;
+    height: 100%;
+    background: rgba(255,0,255,0.2);
+}
+
+#boost-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff00ff, #ff66ff, #ffaaff);
+    transition: width 0.1s ease-out;
+    box-shadow: 
+        inset 0 0 10px rgba(255,255,255,0.5),
+        0 0 20px rgba(255, 0, 255, 0.8);
+}
+
+.boost-text {
+    text-align: center;
+    font-size: 11px;
+    color: #ff00ff;
+    opacity: 0.8;
+    letter-spacing: 2px;
+}
+
+/* Kokpit çerçevesi */
+#cockpit-frame {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.cockpit-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(180deg, 
+        rgba(0,0,0,0.95) 0%, 
+        rgba(0,20,40,0.8) 50%,
+        transparent 100%);
+    border-bottom: 2px solid rgba(0,255,255,0.3);
+}
+
+.cockpit-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(0deg, 
+        rgba(0,0,0,0.95) 0%, 
+        rgba(0,20,40,0.8) 50%,
+        transparent 100%);
+    border-top: 2px solid rgba(0,255,255,0.3);
+}
+
+.cockpit-left {
+    position: absolute;
+    top: 80px;
+    bottom: 100px;
+    left: 0;
+    width: 60px;
+    background: linear-gradient(90deg, 
+        rgba(0,0,0,0.9) 0%, 
+        rgba(0,20,40,0.6) 50%,
+        transparent 100%);
+    border-right: 1px solid rgba(0,255,255,0.2);
+}
+
+.cockpit-right {
+    position: absolute;
+    top: 80px;
+    bottom: 100px;
+    right: 0;
+    width: 60px;
+    background: linear-gradient(-90deg, 
+        rgba(0,0,0,0.9) 0%, 
+        rgba(0,20,40,0.6) 50%,
+        transparent 100%);
+    border-left: 1px solid rgba(0,255,255,0.2);
+}
+
+/* Speedometer - Araç kadranı */
+#speedometer {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    width: 200px;
+    height: 150px;
+}
+
+.speedometer-container {
+    background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(0,20,40,0.8) 100%);
+    padding: 15px;
+    border-radius: 15px;
+    border: 2px solid rgba(0,255,255,0.5);
+    backdrop-filter: blur(15px);
+    box-shadow: 
+        inset 0 0 30px rgba(0,255,255,0.2),
+        0 0 40px rgba(0,255,255,0.3);
+}
+
+.speedometer-svg {
+    width: 100%;
+    height: auto;
+}
+
+.speedometer-display {
+    text-align: center;
+    margin-top: -20px;
+}
+
+.speed-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 20px rgba(0,255,255,0.8);
+    font-family: 'Orbitron', monospace;
+}
+
+.speed-unit {
+    font-size: 10px;
+    color: #00ffff;
+    letter-spacing: 3px;
+    opacity: 0.8;
+}
+
+.speed-timer {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #ffff00;
+    text-shadow: 0 0 10px rgba(255,255,0,0.8);
+}
+
+/* Radar */
+#radar-container {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    width: 150px;
+    height: 150px;
+}
+
+.radar-screen {
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at center, 
+            rgba(0,255,0,0.05) 0%, 
+            rgba(0,100,0,0.2) 30%, 
+            rgba(0,50,0,0.4) 60%,
+            rgba(0,20,0,0.6) 100%);
+    border: 3px solid rgba(0,255,0,0.6);
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        inset 0 0 50px rgba(0,255,0,0.3),
+        0 0 30px rgba(0,255,0,0.4);
+}
+
+.radar-blip {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #00ff00;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00ff00;
+    animation: blipPulse 2s infinite;
+}
+
+.blip-1 {
+    top: 30%;
+    left: 40%;
+    animation-delay: 0s;
+}
+
+.blip-2 {
+    top: 60%;
+    left: 70%;
+    animation-delay: 0.7s;
+}
+
+.blip-3 {
+    top: 45%;
+    left: 25%;
+    animation-delay: 1.4s;
+}
+
+@keyframes blipPulse {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.radar-grid {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(0deg, rgba(0,255,0,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,0,0.1) 1px, transparent 1px);
+    background-size: 25% 25%;
+}
+
+.radar-sweep {
+    position: absolute;
+    width: 50%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(0,255,0,0.5) 50%,
+        rgba(0,255,0,1) 100%);
+    top: 50%;
+    left: 50%;
+    transform-origin: 0 50%;
+    animation: radarSweep 3s linear infinite;
+}
+
+@keyframes radarSweep {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.radar-label {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 11px;
+    color: #00ff00;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(0,255,0,0.8);
+    opacity: 0.9;
+}
+
+/* Yakıt göstergesi */
+.fuel-container {
+    position: absolute;
+    bottom: 200px;
+    left: 30px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(40,20,0,0.8) 100%);
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,165,0,0.5);
+    backdrop-filter: blur(15px);
+}
+
+.fuel-label {
+    font-size: 11px;
+    color: #ffa500;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.fuel-bars {
+    display: flex;
+    gap: 3px;
+}
+
+.fuel-bar {
+    width: 20px;
+    height: 8px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,165,0,0.3);
+    border-radius: 2px;
+}
+
+.fuel-bar.active {
+    background: linear-gradient(90deg, #ff6600, #ffaa00);
+    box-shadow: 0 0 10px rgba(255,165,0,0.8);
+}
+
+/* Kalkan göstergesi */
+.shield-container {
+    position: absolute;
+    bottom: 200px;
+    right: 30px;
+    width: 100px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(0,20,40,0.8) 100%);
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid rgba(0,255,255,0.5);
+    backdrop-filter: blur(15px);
+}
+
+.shield-svg {
+    width: 60px;
+    height: 60px;
+    filter: drop-shadow(0 0 10px rgba(0,255,255,0.6));
+}
+
+.shield-text {
+    font-size: 11px;
+    color: #00ffff;
+    letter-spacing: 2px;
+    margin-top: 5px;
+}
+
+.shield-percent {
+    font-size: 16px;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0,255,255,0.8);
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .game-title {
+        font-size: 48px;
+    }
+    
+    .game-subtitle {
+        font-size: 18px;
+    }
+    
+    #score-panel {
+        gap: 20px;
+        padding: 10px 20px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+    
+    .instructions {
+        font-size: 14px;
+    }
+}

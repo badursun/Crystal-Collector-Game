@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crystal Collector - Space Adventure</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        
+        <div id="cockpit-frame">
+            <div class="cockpit-top"></div>
+            <div class="cockpit-bottom"></div>
+            <div class="cockpit-left"></div>
+            <div class="cockpit-right"></div>
+        </div>
+        
+        <div id="ui-overlay">
+            <div id="score-panel">
+                <div class="panel-frame">
+                    <div class="stat-item">
+                        <span class="stat-label">SKOR</span>
+                        <span id="score" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">SEVİYE</span>
+                        <span id="level" class="stat-value">1</span>
+                    </div>
+                    <div class="stat-item lives-display">
+                        <span class="stat-label">HAYAT</span>
+                        <div class="lives-icons" id="lives-icons">
+                            <span class="life-icon active">♦</span>
+                            <span class="life-icon active">♦</span>
+                            <span class="life-icon active">♦</span>
+                            <span class="life-icon active">♦</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="combo-display" class="hidden">
+                <span id="combo-text">COMBO x<span id="combo-value">2</span></span>
+            </div>
+            
+            <div id="boost-indicator">
+                <div class="boost-container-new">
+                    <div class="boost-label">TURBO</div>
+                    <div class="boost-bar">
+                        <div id="boost-fill"></div>
+                        <div class="boost-segments">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <div class="boost-text">[SPACE]</div>
+                </div>
+            </div>
+            
+            <div id="speedometer" class="speedometer-container">
+                <svg class="speedometer-svg" viewBox="0 0 200 120">
+                    <!-- Arka plan ark -->
+                    <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(0,255,255,0.2)" stroke-width="4"/>
+                    
+                    <!-- Hız göstergesi ark -->
+                    <path id="speed-arc" d="M 20 100 A 80 80 0 0 1 20 100" fill="none" stroke="url(#speedGradient)" stroke-width="6" stroke-linecap="round"/>
+                    
+                    <!-- Gradyan tanımı -->
+                    <defs>
+                        <linearGradient id="speedGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#00ff00;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#ffff00;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ff0000;stop-opacity:1" />
+                        </linearGradient>
+                        
+                        <!-- Glow efekti -->
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    
+                    <!-- İbre -->
+                    <line id="speed-needle" x1="100" y1="100" x2="100" y2="40" stroke="#ff00ff" stroke-width="3" stroke-linecap="round" filter="url(#glow)" transform-origin="100 100"/>
+                    
+                    <!-- Merkez nokta -->
+                    <circle cx="100" cy="100" r="8" fill="#ff00ff" filter="url(#glow)"/>
+                    
+                    <!-- Hız değerleri -->
+                    <text x="20" y="110" fill="#00ffff" font-size="10" font-family="Orbitron">0</text>
+                    <text x="50" y="50" fill="#00ffff" font-size="10" font-family="Orbitron">3x</text>
+                    <text x="100" y="35" fill="#00ffff" font-size="10" font-family="Orbitron">6x</text>
+                    <text x="150" y="50" fill="#00ffff" font-size="10" font-family="Orbitron">9x</text>
+                    <text x="175" y="110" fill="#00ffff" font-size="10" font-family="Orbitron">12x</text>
+                </svg>
+                <div class="speedometer-display">
+                    <div class="speed-value" id="speed-value">0.0</div>
+                    <div class="speed-unit">WARP</div>
+                </div>
+                <div class="speed-timer" id="speed-timer">30s</div>
+            </div>
+            
+            <div id="radar-container">
+                <div class="radar-screen">
+                    <div class="radar-sweep"></div>
+                    <div class="radar-grid"></div>
+                    <div class="radar-blip blip-1"></div>
+                    <div class="radar-blip blip-2"></div>
+                    <div class="radar-blip blip-3"></div>
+                </div>
+                <div class="radar-label">RADAR</div>
+            </div>
+            
+            <div id="fuel-gauge" class="fuel-container">
+                <div class="fuel-label">YAKIT</div>
+                <div class="fuel-bars">
+                    <div class="fuel-bar active"></div>
+                    <div class="fuel-bar active"></div>
+                    <div class="fuel-bar active"></div>
+                    <div class="fuel-bar active"></div>
+                    <div class="fuel-bar"></div>
+                </div>
+            </div>
+            
+            <div id="shield-indicator" class="shield-container">
+                <svg viewBox="0 0 100 100" class="shield-svg">
+                    <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" 
+                             fill="none" 
+                             stroke="rgba(0,255,255,0.5)" 
+                             stroke-width="2"/>
+                    <polygon id="shield-fill" 
+                             points="50,10 85,30 85,70 50,90 15,70 15,30" 
+                             fill="rgba(0,255,255,0.2)" 
+                             stroke="none"/>
+                </svg>
+                <div class="shield-text">KALKAN</div>
+                <div class="shield-percent" id="shield-percent">100%</div>
+            </div>
+        </div>
+        
+        <div id="start-screen" class="screen active">
+            <h1 class="game-title">CRYSTAL COLLECTOR</h1>
+            <p class="game-subtitle">Uzay Macerası</p>
+            <button id="start-btn" class="btn-glow">BAŞLA</button>
+            <div class="instructions">
+                <p>🎮 Fareyi hareket ettirerek gemiyi kontrol et</p>
+                <p>💎 Kristalleri topla, puanını arttır</p>
+                <p>☄️ Asteroitlerden kaçın</p>
+                <p>⚡ Combo yaparak bonus puan kazan</p>
+                <p>🚀 SPACE tuşu ile hızlan</p>
+            </div>
+        </div>
+        
+        <div id="game-over-screen" class="screen">
+            <h2 class="game-over-title">OYUN BİTTİ</h2>
+            <div class="final-stats">
+                <p>Final Skor: <span id="final-score">0</span></p>
+                <p>Ulaşılan Seviye: <span id="final-level">1</span></p>
+                <p>En Yüksek Combo: <span id="max-combo">0</span></p>
+            </div>
+            <button id="restart-btn" class="btn-glow">TEKRAR OYNA</button>
+        </div>
+        
+        <div id="pause-screen" class="screen">
+            <h2>DURDURULDU</h2>
+            <p>Devam etmek için ESC'ye bas</p>
+        </div>
+    </div>
+    
+    <div id="loading-screen">
+        <div class="loader">
+            <div class="loader-ring"></div>
+            <p>Yükleniyor...</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

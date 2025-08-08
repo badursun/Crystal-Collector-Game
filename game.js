@@ -90,7 +90,7 @@ class CrystalCollector {
         
         try {
             // Uzay gemisi modelini yükle
-            const spaceshipGLTF = await this.loadGLTF('./models/spaceship.glb');
+            const spaceshipGLTF = await this.loadGLTF('https://demoadresi.com/models/spaceship.glb');
             this.loadedModels.spaceship = spaceshipGLTF.scene;
             
             // Uzay gemisi materyallerini ayarla
@@ -105,7 +105,7 @@ class CrystalCollector {
             console.log('Uzay gemisi yüklendi');
             
             // Asteroit paketini yükle
-            const asteroidsGLTF = await this.loadGLTF('./models/asteroids_pack.glb');
+            const asteroidsGLTF = await this.loadGLTF('https://demoadresi.com/models/asteroids_pack.glb');
             asteroidsGLTF.scene.traverse((child) => {
                 if (child.isMesh) {
                     const asteroidModel = child.clone();
@@ -121,7 +121,7 @@ class CrystalCollector {
             console.log(`${this.loadedModels.asteroids.length} asteroit modeli yüklendi`);
             
             // Kristal paketini yükle
-            const crystalsGLTF = await this.loadGLTF('./models/crystal_pack_stylized.glb');
+            const crystalsGLTF = await this.loadGLTF('https://demoadresi.com/models/crystal_pack_stylized.glb');
             crystalsGLTF.scene.traverse((child) => {
                 if (child.isMesh) {
                     const crystalModel = child.clone();

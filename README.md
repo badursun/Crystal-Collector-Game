@@ -2,6 +2,10 @@
 
 🚀 **3D Uzay Macera Oyunu** - Kristalleri topla, asteroitlerden kaç, skoru arttır!
 
+## 🎮 [OYUNU OYNA](https://badursun.github.io/Crystal-Collector-Game/) 
+
+> 🌟 Oyun GitHub Pages üzerinde canlı olarak yayınlandı!
+
 ## 🎮 Oyun Hakkında
 
 Crystal Collector, Three.js kullanılarak geliştirilmiş 3D bir uzay macera oyunudur. Uzay geminizi kontrol ederek değerli kristalleri toplayın, tehlikeli asteroitlerden kaçının ve en yüksek skoru elde etmeye çalışın.
